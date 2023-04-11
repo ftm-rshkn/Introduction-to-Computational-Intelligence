@@ -1,0 +1,68 @@
+% Title: linear memory model
+% Created by: Fateme Hoseini
+% Last edit: 4/12/2023
+
+clc; clear all; close all
+% to give plane parameters from user(ax1+ bx2+ dx3=0)
+a = input('imagine a surface in space with this formula: ax1+ bx2+ dx3 =0, give me a value for "a" : ');
+b = input('give me a value for "b" : ');
+d = input('give me a value for "d" : ');
+
+w = 0.001*rand(3,3);% Creating weight matrix
+c = 0.001;% learnig rate
+n = 1000;% number of points on X plane
+% Creating n points on the X plane randomly
+x_train = zeros(n,3);
+x_train(:,1) = 10*rand(n,1);
+x_train(:,2) = 10*rand(n,1);
+x_train(:,3) = -(a/d)*x_train(:,1)-(b/d)*x_train(:,2);
+figure('name','some point of X plane for traing')
+% f1 = @(x,y) -(a/d)*x-(b/d)*y;
+% fsurf(f1,[0 10 0 10],'EdgeColor','none')
+
+plot3(x_train(:,1),x_train(:,2),x_train(:,3),'.c','markersize',30)
+title('x data for training'); xlabel('X1'); ylabel('X2'); zlabel('X3')
+hold on
+
+
+% learning network by LMSE algorithm 
+for i = 1:n
+    
+    y(i,:) = x_train(i,:)*w;
+    w = w + c*(x_train(i,:))'*(x_train(i,:)-y(i,:));
+
+end
+
+hold on
+output = x_train*w;
+plot3(output(:,1),output(:,2),output(:,3),'*r','markersize',10)
+
+% test network with points on X plane
+x_test1 = zeros(50,3);
+x_test1(:,1) = 10*rand(50,1);
+x_test1(:,2) = 10*rand(50,1);
+x_test1(:,3) = -(a/d)*x_test1(:,1)-(b/d)*x_test1(:,2);
+y_test = x_test1*w;
+figure('name','test network with points on X plane')
+f1 = @(x,y) -(a/d)*x-(b/d)*y;
+fsurf(f1,[0 10 0 10],'EdgeColor','none')
+hold on
+plot3(x_test1(:,1),x_test1(:,2),x_test1(:,3),'.c','markersize',30)
+plot3(y_test(:,1),y_test(:,2),y_test(:,3),'*r','markersize',10)
+title('x data for testing'); xlabel('X1'); ylabel('X2'); zlabel('X3')
+error = sum(sum(mean((abs(x_test1-y_test)))))
+
+% testing with points which are randomly on space
+x_test2 = zeros(50,3);
+x_test2(:,1) = 10*rand(50,1);
+x_test2(:,2) = 10*rand(50,1);
+x_test2(:,3) = 10*rand(50,1);
+y_test2 = x_test2*w;
+figure('name','test network with points on space')
+f1 = @(x,y) -(a/d)*x-(b/d)*y;
+fsurf(f1,[-5 10 -5 10],'EdgeColor','none')
+hold on
+plot3(x_test2(:,1),x_test2(:,2),x_test2(:,3),'.c','markersize',20)
+plot3(y_test2(:,1),y_test2(:,2),y_test2(:,3),'*r','markersize',10)
+title('x data for testing'); xlabel('X1'); ylabel('X2'); zlabel('X3')
+error = sum(sum(mean((abs(x_test2-y_test2)))));
